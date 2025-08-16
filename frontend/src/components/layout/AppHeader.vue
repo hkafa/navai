@@ -112,7 +112,7 @@ const handleLogout = async (): Promise<void> => {
 
 .nav-link:hover, .nav-link.active {
   background-color: var(--primary-color);
-  color: white;
+  color: black;
 }
 
 .header-actions {
@@ -138,7 +138,7 @@ const handleLogout = async (): Promise<void> => {
     flex-wrap: wrap;
     gap: 1rem;
   }
-  
+
   .navigation {
     order: 3;
     width: 100%;

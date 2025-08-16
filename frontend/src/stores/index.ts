@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { User, NavigationState, UIState, DataState, LoginCredentials, Notification } from '@/types'
+import { getHello } from '@/services/comms'
 
 export const useAppStore = defineStore('app', () => {
   // State
@@ -104,6 +105,12 @@ export const useAppStore = defineStore('app', () => {
     navigation.value.sidebarOpen = !navigation.value.sidebarOpen
   }
 
+  const callHelloApi = async (name: String): Promise<void> => {
+  const { message } = await getHello(name)
+  addNotification({ message, type: "info" }) // set your own type
+}
+
+
   return {
     // State
     user,
@@ -123,6 +130,8 @@ export const useAppStore = defineStore('app', () => {
     setCurrentRoute,
     toggleDarkMode,
     setLoading,
-    toggleSidebar
+    toggleSidebar,
+    // API Actions
+    callHelloApi,
   }
 })

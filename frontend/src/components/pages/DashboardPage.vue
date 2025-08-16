@@ -72,6 +72,35 @@
       </Card>
       
       <Card class="dashboard-card">
+        <template #title>API Testing</template>
+        <template #content>
+          <div class="api-section">
+            <div class="api-description">
+              <p>Test backend API endpoints and view responses</p>
+            </div>
+            <div class="api-actions">
+              <InputText
+                id="name"
+                v-model="name"
+                type="name"
+                placeholder="Enter your name"
+                required
+                class="w-full"
+              />
+              <Button 
+                label="Call Hello Endpoint"
+                icon="pi pi-server"
+                @click="callHelloApiEndpoint"
+                class="w-full"
+                severity="info"
+                :disabled="name == ''"
+              />
+            </div>
+          </div>
+        </template>
+      </Card>
+      
+      <Card class="dashboard-card">
         <template #title>Data Overview</template>
         <template #content>
           <div class="data-overview">
@@ -98,8 +127,10 @@
 <script setup lang="ts">
 import { useAppStore } from '@/stores'
 import type { Notification } from '@/types'
+import {ref} from 'vue'
 
 const store = useAppStore()
+
 
 const testNotification = (): void => {
   const notifications: Omit<Notification, 'id'>[] = [
@@ -114,7 +145,14 @@ const testNotification = (): void => {
 }
 
 const toggleLoading = (): void => {
-  store.setLoading(!store.ui.loading)
+  store.ui.loading = !store.ui.loading
+}
+
+const name = ref('')
+
+const callHelloApiEndpoint = async (): Promise<void> => {
+  if (name.value == '') return;
+  await store.callHelloApi(name.value)
 }
 </script>
 
@@ -160,7 +198,7 @@ const toggleLoading = (): void => {
   text-align: center;
   padding: 1rem;
   background: var(--primary-color);
-  color: white;
+  color: black;
   border-radius: var(--border-radius);
 }
 
@@ -243,19 +281,66 @@ const toggleLoading = (): void => {
   font-size: 0.9rem;
 }
 
+.api-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.api-description p {
+  margin: 0;
+  color: var(--text-color-secondary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.api-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.api-response, .api-error {
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  border-left: 4px solid;
+}
+
+.api-response {
+  background: var(--green-50);
+  border-left-color: var(--green-500);
+}
+
+.api-error {
+  background: var(--red-50);
+  border-left-color: var(--red-500);
+}
+
+.api-response h4, .api-error h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.response-content, .error-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 @media (max-width: 768px) {
   .dashboard {
     padding: 0.5rem;
   }
-  
+
   .dashboard-header h1 {
     font-size: 2rem;
   }
-  
+
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
   }
