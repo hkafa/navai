@@ -30,6 +30,14 @@
         >
           Dashboard
         </RouterLink>
+        <RouterLink
+          v-if="store.isLoggedIn"
+          to="/playground"
+          class="nav-link"
+          :class="{ active: store.navigation.currentRoute === 'Playground' }"
+        >
+          Playground
+        </RouterLink>
       </nav>
       
       <div class="header-actions">

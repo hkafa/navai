@@ -1,15 +1,15 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { User, NavigationState, UIState, DataState, LoginCredentials, Notification } from '@/types'
-import { getHello } from '@/services/comms'
+import { getHello, planJourney } from '@/services/comms'
 
 export const useAppStore = defineStore('app', () => {
   // State
   const user = ref<User>({
     id: null,
-    name: '',
-    email: '',
-    isAuthenticated: false
+    name: 'Houmam',
+    email: 'hgkafa@yahoo.com',
+    isAuthenticated: true
   })
 
   const navigation = ref<NavigationState>({
@@ -33,6 +33,13 @@ export const useAppStore = defineStore('app', () => {
       perPage: 10,
       total: 0
     }
+  })
+
+  const journey = ref({
+    coordinates: [] as number[][],
+    description: '',
+    journeyId: null as string | null,
+    isLoading: false
   })
 
   // Getters
@@ -76,7 +83,6 @@ export const useAppStore = defineStore('app', () => {
   const addNotification = (notification: Omit<Notification, 'id'>): void => {
     const newNotification: Notification = {
       id: Date.now(),
-      timeout: 5000,
       ...notification
     }
     ui.value.notifications.push(newNotification)
@@ -110,6 +116,45 @@ export const useAppStore = defineStore('app', () => {
   addNotification({ message, type: "info" }) // set your own type
 }
 
+  const planJourneyAction = async (description: string): Promise<void> => {
+    journey.value.isLoading = true
+    ui.value.loading = true
+    try {
+      journey.value.description = description
+      const response = await planJourney(description)
+      
+      if (response.success && response.coordinates) {
+        journey.value.coordinates = response.coordinates
+        journey.value.journeyId = response.journey_id || null
+        addNotification({
+          message: response.message || 'Journey planned successfully',
+          type: 'success'
+        })
+      } else {
+        throw new Error(response.message || 'Failed to plan journey')
+      }
+    } catch (error) {
+      journey.value.coordinates = []
+      journey.value.journeyId = null
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      addNotification({
+        message: errorMessage,
+        type: 'error'
+      })
+      throw error
+    } finally {
+      journey.value.isLoading = false
+      ui.value.loading = false
+    }
+  }
+
+  const clearJourney = (): void => {
+    journey.value.coordinates = []
+    journey.value.description = ''
+    journey.value.journeyId = null
+    journey.value.isLoading = false
+  }
+
 
   return {
     // State
@@ -117,6 +162,7 @@ export const useAppStore = defineStore('app', () => {
     navigation,
     ui,
     data,
+    journey,
     // Getters
     isLoggedIn,
     userName,
@@ -133,5 +179,7 @@ export const useAppStore = defineStore('app', () => {
     toggleSidebar,
     // API Actions
     callHelloApi,
+    planJourney: planJourneyAction,
+    clearJourney,
   }
 })
