@@ -38,7 +38,6 @@ export const useAppStore = defineStore('app', () => {
   const journey = ref({
     coordinates: [] as number[][],
     description: '',
-    journeyId: null as string | null,
     isLoading: false
   })
 
@@ -123,9 +122,8 @@ export const useAppStore = defineStore('app', () => {
       journey.value.description = description
       const response = await planJourney(description)
       
-      if (response.success && response.coordinates) {
+      if (response.coordinates) {
         journey.value.coordinates = response.coordinates
-        journey.value.journeyId = response.journey_id || null
         addNotification({
           message: response.message || 'Journey planned successfully',
           type: 'success'

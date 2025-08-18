@@ -26,7 +26,7 @@ export async function getHealth(): Promise<Health> {
 }
 
 export async function planJourney(description: string): Promise<JourneyResponse> {
-  const res = await api.post<JourneyResponse>('/journey-planner/', {
+  const res = await api.post<JourneyResponse>('/journey-planner', {
     description: description
   })
   return res.data
